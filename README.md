@@ -126,7 +126,7 @@ public class BookService {
 
 1. Create a Book
 
-The following method a RESTful API that allows the clients to create a book
+The following method a RESTful API that allows the clients to create a book.
 
 Code:
 ```
@@ -157,6 +157,7 @@ Response:
 
 2. List all books
 This method that returns a list of book (a kind of retrieval operation).
+
 Code:
 ```
  @GetMapping(value = "books")
@@ -192,7 +193,6 @@ Response:
 This method for a RESTful API that allows the clients to get information about a specific book based on ID.
 
 Code:
-
 ```
   @GetMapping(value = "book/{id}")
   public ResponseEntity<Book> getBookById(@PathVariable("id") Long id) {
@@ -218,9 +218,9 @@ Response:
 ```
 
 4. Update Book
-The method that exposes RESTful API for update operation as follows.
-Code:
+The method that exposes RESTful API for update operation.
 
+Code:
 ```
  @PutMapping(value = "book/{id}")
   public ResponseEntity<Book> updateBook(@RequestBody Book book, @PathVariable Long id) {
@@ -249,8 +249,8 @@ Response:
 
 5. Delete a Book
 The method that exposes RESTful API for the delete operation.
+
 Code:
- 
 ```
 @DeleteMapping(value = "book/{id}")
   public ResponseEntity<Book> deleteBook(@PathVariable("id") Long id) {
