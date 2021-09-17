@@ -45,7 +45,7 @@ Create a new package model inside `com.example.learningspring`. Then, create a n
 ##### Create a Model Class
 Right click on the `model` package then
 New -> Java Class -> Enter the Class Name
-
+<!---
 Once created the model class then select filed like,
 ```
 private long id;
@@ -57,9 +57,10 @@ private Boolean published;
 ##### Auto Generate setter and getter
 
 THEN Right click on the inside the base package `Book model class` -> Select -> Generate setter and getter -> Select fields
-
+--->
 ##### Create BookRepository to access data from the database
-Create a new package called repository inside the base package com.example.learningspring. Then, create an interface called `BookRepository` and extend it from JpaRepository.
+* Create a new package called repository inside the base package com.example.learningspring.
+* Then, create an interface called `BookRepository` and extend it from JpaRepository.
 ```
 package com.example.learningspring.repository;
 
@@ -73,7 +74,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 ```
 Then Spring Data JPA will generate implementation code for the most common CRUD operations – we don’t have to write a single query.
 
-##### Code Service Class
+##### Book Service Class
 Next, code a class that acts as a middle layer between persistence layer (repository) and controller layer. Create the `BookService` class with the following code:
 ```
 package com.example.learningspring.service;
