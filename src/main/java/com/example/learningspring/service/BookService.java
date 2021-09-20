@@ -46,12 +46,7 @@ public class BookService {
   }
 
   public void delete(Long id) {
-    try {
-      service.deleteById(id);
-    } catch (BookNotFoundException ex) {
-      throw new BookNotFoundException("Book id not found : " + id);
-    }
-
+     service.deleteById(id);
   }
 
   public boolean isTitlePresent(String title) {
