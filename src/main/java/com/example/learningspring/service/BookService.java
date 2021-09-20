@@ -46,7 +46,7 @@ public class BookService {
   }
 
   public void delete(Long id) {
-     service.deleteById(id);
+    service.deleteById(id);
   }
 
   public boolean isTitlePresent(String title) {
