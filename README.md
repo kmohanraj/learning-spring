@@ -636,3 +636,5 @@ logging.level.liquibase = INFO
 ```
 
 ![Screenshot](liquibase.png)
+
+</details>
