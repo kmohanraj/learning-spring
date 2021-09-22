@@ -2,7 +2,7 @@
 Contents:
 - [x] CRUD Operation
 - [ ] Exception handling & Validation
-- [ ] Unit Test
+- [ ] Liquibase Migration
 
 #### 1. CRUD RESTFul APIs
 Create the REST APIs for creating, retrieving, updating and deleting a Book
@@ -529,3 +529,110 @@ Response:
 }
 ```
 </details>
+
+
+#### 3. Liquibase Migration
+  * Liquibase basics changeLog files, databaseChangeLog and changeSet
+  * Using Liquibase to update the databas
+  * Manipulating database schema and tables
+
+
+<details>
+<summary>Click to view Exception</summary>
+
+##### 1. Dependency
+
+```
+<dependency>
+    <groupId>org.liquibase</groupId>
+    <artifactId>liquibase-core</artifactId>
+</dependency>
+```
+
+##### 2. Add liquibase properties to `application.properties`
+
+```
+# Liquibase configuration
+spring.liquibase.change-log=classpath:/db/changelog/changelog-master.xml
+logging.level.liquibase = INFO
+```
+
+
+##### 3. Create Changelog Master file to `src/main/java/resources/db/changelog`
+
+```
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+        <include file="/db/changelog/changes/create-book-table-changelog.xml"/>
+        <include file="/db/changelog/changes/add-column-book-table-changelog-1.xml"/>
+        <include file="/db/changelog/changes/insert-book-table-changelog-2.xml" />
+</databaseChangeLog>
+```
+##### 4. Create table changelog file to `src/main/java/resources/db/changelog/changes`
+
+```
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="book" id="changelog-1.0">
+
+        <!-- table already exists condition -->
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="book" />
+            </not>
+        </preConditions>
+        <!-- table already exists-->
+
+        <createTable tableName="book">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" unique="true" primaryKey="true" />
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="author_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text">
+                <constraints nullable="true"/>
+            </column>
+            <column name="published" type="VARCHAR(10)" defaultValue="in-active">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
+```
+
+
+##### 5. Add Column changelog file to `src/main/java/resources/db/changelog/changes`
+
+```
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-1.1" author="book">
+      <addColumn tableName="book">
+        <column name="date_of_published" type="datetime" />
+        <column name="create_at" type="datetime" />
+        <column name="updated_at" type="datetime" />
+        <column name="created_by" type="VARCHAR(255)" />
+      </addColumn>
+    </changeSet>
+</databaseChangeLog>
+
+```
+
+![Screenshot](liquibase.png)
