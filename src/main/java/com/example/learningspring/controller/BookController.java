@@ -24,7 +24,7 @@ public class BookController {
 
   @PostMapping(value = "books")
   public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
-    Book _book = service.save(new Book(book.getTitle(), book.getAuthorName(), book.getDescription(), false));
+    Book _book = service.save(new Book(book.getTitle(), book.getAuthorName(), book.getDescription(), "in-active"));
     return new ResponseEntity<>(_book, HttpStatus.CREATED);
   }
 

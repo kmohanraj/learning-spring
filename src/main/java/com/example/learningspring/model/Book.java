@@ -14,13 +14,13 @@ public class Book {
   @NotEmpty(message = "Author Name can not be empty")
   private String authorName;
   private String description;
-  private Boolean published;
+  private String published;
 
   public Book() {
 
   }
 
-  public Book(String title, String authorName, String description, Boolean published) {
+  public Book(String title, String authorName, String description, String published) {
     this.title = title;
     this.authorName = authorName;
     this.description = description;
@@ -65,11 +65,11 @@ public class Book {
   }
 
   @Column(name = "published")
-  public Boolean getPublished() {
+  public String getPublished() {
     return published;
   }
 
-  public void setPublished(Boolean published) {
+  public void setPublished(String published) {
     this.published = published;
   }
 
