@@ -1,0 +1,10 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+        <include file="/db/changelog/changes/create-book-table-changelog.xml"/>
+        <include file="/db/changelog/changes/add-column-book-table-changelog-1.xml"/>
+        <include file="/db/changelog/changes/insert-book-table-changelog-2.xml" />
+</databaseChangeLog>

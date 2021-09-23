@@ -1,13 +1,12 @@
 package com.example.learningspring.service;
 
-
+import com.example.learningspring.exception.BookAlreadyExists;
+import com.example.learningspring.exception.BookNotFoundException;
 import com.example.learningspring.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.learningspring.model.Book;
-
 import java.util.List;
-
 import javax.transaction.Transactional;
 
 @Service
@@ -22,7 +21,12 @@ public class BookService {
   }
 
   public Book save(Book book) {
-    return service.save(book);
+    if(isTitlePresent(book.getTitle())) {
+      return service.save(book);
+    } else {
+      throw new BookAlreadyExists("Title already exist with this title: " + book.getTitle());
+    }
+
   }
 
   public Book update(Book bookData, Book book) {
@@ -34,10 +38,23 @@ public class BookService {
   }
 
   public Book get(Long id) {
-    return service.findById(id).get();
+    try {
+      return service.findById(id).get();
+    } catch (Exception ex) {
+      throw new BookNotFoundException("Book id not found : " + id);
+    }
   }
 
   public void delete(Long id) {
     service.deleteById(id);
+  }
+
+  public boolean isTitlePresent(String title) {
+    Book book = service.findByTitle(title);
+    if(null==book) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

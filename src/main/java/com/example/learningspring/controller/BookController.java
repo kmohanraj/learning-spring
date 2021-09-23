@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -22,13 +23,13 @@ public class BookController {
   }
 
   @PostMapping(value = "books")
-  public ResponseEntity<Book> createBook(@RequestBody Book book) {
+  public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
     Book _book = service.save(new Book(book.getTitle(), book.getAuthorName(), book.getDescription(), false));
     return new ResponseEntity<>(_book, HttpStatus.CREATED);
   }
 
   @GetMapping(value = "book/{id}")
-  public ResponseEntity<Book> getBookById(@PathVariable("id") Long id) {
+  public ResponseEntity<?> getBookById(@PathVariable("id") Long id) {
     Book bookData = service.get(id);
     return new ResponseEntity<>(bookData, HttpStatus.OK);
   }

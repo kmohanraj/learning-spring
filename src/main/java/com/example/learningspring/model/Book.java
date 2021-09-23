@@ -1,14 +1,17 @@
 package com.example.learningspring.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
-@Table(name = "books")
+//@Table(name = "books")
 
 public class Book {
 
   private long id;
+  @NotEmpty(message = "Title can not be empty")
   private String title;
+  @NotEmpty(message = "Author Name can not be empty")
   private String authorName;
   private String description;
   private Boolean published;
@@ -34,7 +37,7 @@ public class Book {
     this.id = id;
   }
 
-  @Column(name = "title", nullable = false)
+  @Column(name = "title", nullable = false, unique = true)
   public String getTitle() {
     return title;
   }

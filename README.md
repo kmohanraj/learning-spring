@@ -2,7 +2,7 @@
 Contents:
 - [x] CRUD Operation
 - [ ] Exception handling & Validation
-- [ ] Unit Test
+- [ ] Liquibase Migration
 
 #### 1. CRUD RESTFul APIs
 Create the REST APIs for creating, retrieving, updating and deleting a Book
@@ -276,5 +276,365 @@ Response:
 ]
 ```
 
+
+</details>
+
+
+#### 2. Handle Spring Boot REST API exceptions
+Spring Framework provides many great and handy features to help us deal with exceptions and validation errors in more flexible and appropriate ways
+
+<details>
+<summary>Click to view Exception</summary>
+
+##### 1. Validation annotations
+
+* Annotate model class with required validation specific annotations such as `@NotEmpty`
+* Enable validation of request body by `@Valid` annotation
+
+##### 2. Custom Exception Classes
+
+Default spring validation works and provide information overload about error, and that’s why we should customize it according to our application’s need.
+
+##### 2.1 BookNotFoundException
+Is thrown when a user tries to access a book that is not present.
+
+I have created `BookNotFoundException` class is.
+
+```
+package com.example.learningspring.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class BookNotFoundException extends RuntimeException {
+
+  public BookNotFoundException(String message) {
+    super(message);
+  }
+}
+
+```
+
+##### 2.2 BookAlreadyExistsException
+Is thrown when a user tries to add an already existing book.
+
+I have created `BookAlreadyExistsException` class is.
+```
+package com.example.learningspring.exception;
+
+public class BookAlreadyExists extends RuntimeException {
+  public BookAlreadyExists(String message) {
+    super(message);
+  }
+}
+
+```
+
+##### 3. Global Exception Handling with `@ControllerAdvice`
+
+The @ExceptionHandler annotation is only active for that particular class where it is declared
+The @ControllerAdvice annotation allows us to consolidate our multiple, scattered @ExceptionHandlers from before into a single, global error handling component
+
+1. @ExceptionHandler Annotation:
+    * The @ExceptionHandler is an annotation used to handle the specific exceptions and sending the custom responses to the client.
+2. @ControllerAdvice Annotation:
+    * The @ControllerAdvice is an annotation, to handle the exceptions globally.
+
+3. ResponseEntityExceptionHandler:
+    * This method can be used with @ControllerAdvice classes.It allows the developer to specify some specific templates of ResponseEntity and return values.
+    
+4. @ControllerAdvice
+    * The @ControllerAdvice annotation for easier exception handling.
+    * It is a convenience annotation that is itself annotated with @ControllerAdvice and @ResponseBody.
+    
+```
+package com.example.learningspring.controller;
+
+import com.example.learningspring.exception.BookAlreadyExists;
+import com.example.learningspring.exception.BookNotFoundException;
+import com.example.learningspring.exception.ErrorResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import org.springframework.validation.BindingResult;
+import java.util.*;
+
+@ControllerAdvice(assignableTypes = BookController.class)
+public class BookControllerAdvice {
+
+  @ExceptionHandler(BookNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleBookNotFoundException(BookNotFoundException exception) {
+    List<String> errorList = Arrays.asList(exception.getMessage());
+    ErrorResponse error = new ErrorResponse(new Date(),HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.name() , errorList);
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+  }
+
+  @ExceptionHandler(BookAlreadyExists.class)
+  public ResponseEntity<ErrorResponse> handleBookAlreadyExistsException(BookAlreadyExists exception) {
+    List<String> errorList = Arrays.asList(exception.getMessage());
+    ErrorResponse error = new ErrorResponse(new Date(), HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.name() , errorList);
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleException(Exception exception) {
+    List<String> errorList = Arrays.asList(exception.getMessage());
+    ErrorResponse error = new ErrorResponse(new Date(), HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name() , errorList);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+    BindingResult result = exception.getBindingResult();
+    List<String> errorList = new ArrayList<>();
+    result.getFieldErrors().forEach((fieldError) ->{
+      errorList.add(fieldError.getDefaultMessage());
+    });
+    ErrorResponse error = new ErrorResponse(new Date(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name() , errorList);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
+}
+
+```
+
+##### 4. Exception Handling - Demo
+
+1. 
+
+1. GET http://localhost:8080/api/v1/book/20
+
+HTTP Status : 200
+```json
+{
+    "id": 20,
+    "title": "Spring Boot",
+    "authorName": "Pivotal Team",
+    "description": "Spring Boot is an open source Java-based framework used to create a micro Service",
+    "published": false
+}
+```
+
+2. GET http://localhost:8080/api/v1/book/21 [Invalid]
+
+HTTP Status : 404 
+```json
+{
+    "timestamp": "2021-09-20T03:13:23.650+00:00",
+    "status": 404,
+    "errors": "NOT_FOUND",
+    "message": [
+        "Book id not found : 21"
+    ]
+}
+```
+
+3. POST http://localhost:8080/api/v1/books
+
+Request:
+```json
+{
+    "title": "Spring Boot",
+    "authorName": "Pivotal Team",
+    "description": "Spring Boot is an open source Java-based framework used to create a micro Service",
+    "published": true
+}
+```
+
+Response:
+
+HTTP Status : 201 Created
+```json
+{
+        "id": 20,
+        "title": "Spring Boot",
+        "authorName": "Pivotal Team",
+        "description": "Spring Boot is an open source Java-based framework used to create a micro Service",
+        "published": false
+    }
+```
+
+4. POST http://localhost:8080/api/v1/books [Invalid]
+
+Request:
+```json
+{
+    "authorName": "Pivotal Team",
+    "description": "Spring Boot is an open source Java-based framework used to create a micro Service",
+    "published": true
+}
+```
+
+Response:
+
+```json
+{
+    "timestamp": "2021-09-20T03:16:34.603+00:00",
+    "status": 400,
+    "errors": "BAD_REQUEST",
+    "message": [
+        "Title can not be empty"
+    ]
+}
+```
+
+5. POST http://localhost:8080/api/v1/books [Invalid]
+
+Request:
+```json
+{
+    "description": "Spring Boot is an open source Java-based framework used to create a micro Service",
+    "published": true
+}
+```
+
+Response:
+
+```json
+{
+    "timestamp": "2021-09-20T03:19:11.526+00:00",
+    "status": 400,
+    "errors": "BAD_REQUEST",
+    "message": [
+        "Author Name can not be empty",
+        "Title can not be empty"
+    ]
+}
+```
+
+6. POST http://localhost:8080/api/v1/books [Invalid]
+
+Request:
+```json
+{
+    "title": "Spring Boot",
+    "authorName": "Pivotal Team",
+    "description": "Spring Boot is an open source Java-based framework used to create a micro Service",
+    "published": true
+}
+```
+Response:
+```json
+{
+    "timestamp": "2021-09-20T03:20:31.735+00:00",
+    "status": 409,
+    "errors": "CONFLICT",
+    "message": [
+        "Title already exist with this title: Spring Boot"
+    ]
+}
+```
+</details>
+
+
+#### 3. Liquibase Migration
+  * Liquibase basics changeLog files, databaseChangeLog and changeSet
+  * Using Liquibase to update the databas
+  * Manipulating database schema and tables
+
+
+<details>
+<summary>Click to view Exception</summary>
+
+##### 1. Dependency
+
+```
+<dependency>
+    <groupId>org.liquibase</groupId>
+    <artifactId>liquibase-core</artifactId>
+</dependency>
+```
+
+##### 2. Add liquibase properties to `application.properties`
+
+```
+# Liquibase configuration
+spring.liquibase.change-log=classpath:/db/changelog/changelog-master.xml
+logging.level.liquibase = INFO
+```
+
+
+##### 3. Create Changelog Master file to `src/main/java/resources/db/changelog`
+
+```
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+        <include file="/db/changelog/changes/create-book-table-changelog.xml"/>
+        <include file="/db/changelog/changes/add-column-book-table-changelog-1.xml"/>
+        <include file="/db/changelog/changes/insert-book-table-changelog-2.xml" />
+</databaseChangeLog>
+```
+##### 4. Create table changelog file to `src/main/java/resources/db/changelog/changes`
+
+```
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="book" id="changelog-1.0">
+
+        <!-- table already exists condition -->
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="book" />
+            </not>
+        </preConditions>
+        <!-- table already exists-->
+
+        <createTable tableName="book">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" unique="true" primaryKey="true" />
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="author_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text">
+                <constraints nullable="true"/>
+            </column>
+            <column name="published" type="VARCHAR(10)" defaultValue="in-active">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
+```
+
+
+##### 5. Add Column changelog file to `src/main/java/resources/db/changelog/changes`
+
+```
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-1.1" author="book">
+      <addColumn tableName="book">
+        <column name="date_of_published" type="datetime" />
+        <column name="create_at" type="datetime" />
+        <column name="updated_at" type="datetime" />
+        <column name="created_by" type="VARCHAR(255)" />
+      </addColumn>
+    </changeSet>
+</databaseChangeLog>
+
+```
+
+![Screenshot](liquibase.png)
 
 </details>
