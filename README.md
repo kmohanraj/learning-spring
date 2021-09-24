@@ -1,8 +1,9 @@
 ### Learning Spring Boot
 Contents:
 - [x] CRUD Operation
-- [ ] Exception handling & Validation
-- [ ] Liquibase Migration
+- [X] Exception handling & Validation
+- [X] Liquibase Migration
+- [ ] Unit Test
 
 #### 1. CRUD RESTFul APIs
 Create the REST APIs for creating, retrieving, updating and deleting a Book
@@ -638,3 +639,37 @@ logging.level.liquibase = INFO
 ![Screenshot](liquibase.png)
 
 </details>
+
+
+#### 3. Unit Test    
+    Unit testing REST Controller with @WebMvcTest.
+    Unit testing Service Layer with Mockito.
+    Integration testing using @SpringBootTest
+    
+<details>
+
+<summary>Click to view Exception</summary>
+
+##### 1. Dependency
+
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+##### 2. Test Result
+
+![Screenshot](Junit.png)
