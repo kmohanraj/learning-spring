@@ -20,7 +20,7 @@ public class BookService {
     return service.findAll();
   }
 
-  public Book save(Book book) {
+  public Book createBook(Book book) {
     if(isTitlePresent(book.getTitle())) {
       return service.save(book);
     } else {
