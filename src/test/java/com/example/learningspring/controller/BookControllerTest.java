@@ -106,7 +106,7 @@ public class BookControllerTest {
   }
 
   @Test
-  public void should_throw_exception_when_book_not_found() throws Exception {
+  public void shouldThrowException_whenBookNotFound() throws Exception {
     String uri = "/api/v1/book/";
     Book book = BookData.createBookData();
     Mockito.doThrow(new BookNotFoundException("19")).when(bookService).get(book.getId());
@@ -116,7 +116,7 @@ public class BookControllerTest {
   }
 
   @Test
-  public void should_throw_exception_when_book_title_empty() throws Exception {
+  public void shouldThrowException_whenBookTitleIsEmpty() throws Exception {
     String uri = "/api/v1/books";
     Book book = BookData.createBookData();
     book.setTitle("");
