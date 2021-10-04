@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 import javax.validation.Valid;
 
 @RestController
@@ -42,8 +42,10 @@ public class BookController {
   }
 
   @DeleteMapping(value = "book/{id}")
-  public ResponseEntity<Book> deleteBook(@PathVariable("id") Long id) {
+  public Map<String, Boolean> deleteBook(@PathVariable("id") Long id) {
     service.delete(id);
-    return new ResponseEntity<>(HttpStatus.OK);
+    Map<String, Boolean> response =  new HashMap<>();
+    response.put("Book deleted successfully.", Boolean.TRUE);
+    return response;
   }
 }
